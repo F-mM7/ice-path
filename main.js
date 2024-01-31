@@ -1,8 +1,8 @@
 console.log("ver 1.1");
 
 //setting
-const H = 10;
-const W = 10;
+const H = 12;
+const W = 12;
 const L = 40;
 const T = 6;
 
@@ -36,8 +36,6 @@ ctx.lineWidth = T;
 
 //event
 window.onload = set;
-enterButton.onclick = judge;
-clearButton.onclick = clear;
 canvas.onclick = function (event) {
   const rct = canvas.getBoundingClientRect();
   let i = Math.floor(((event.pageY - rct.top) * H) / rct.height);
