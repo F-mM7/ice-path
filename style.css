@@ -1,64 +1,86 @@
-html {
-  touch-action: manipulation;
+:root {
+  --N: 12;
 }
+
+.container {
+  display: flex;
+  justify-content: center;
+}
+.content {
+  margin: auto;
+}
+
 body {
   margin: 0;
   height: 100vh;
-  display: flex;
-}
-.root,
-.buttons {
-  display: flex;
 }
 canvas {
-  border: 0.75vmin solid;
+  height: calc(var(--unit-grid) * var(--N));
+  border: calc(var(--unit-grid) * 3 / 40) solid;
 }
-div {
-  margin: auto;
-}
-button {
+
+ul {
+  display: flex;
+  flex-direction: row;
+  margin: 0;
   padding: 0;
-  text-align: center;
+}
+li {
+  list-style: none;
+}
+
+button {
+  display: flex;
+  height: var(--unit-grid);
+  width: var(--unit-grid);
+  padding: 0;
+
+  font-size: calc(var(--unit-grid) / 1.2);
+  align-items: center;
+  justify-content: center;
 }
 
 /* @media (orientation: portrait) { */
-.root {
+:root {
+  --unit-grid: min(calc(100vh / (var(--N) + 4)), calc(98vw / var(--N)));
+}
+.parallel {
   flex-direction: column;
 }
-.buttons {
+.perpendicular {
   flex-direction: row;
 }
-canvas {
-  height: min(97vw, 80vh);
-  width: min(97vw, 80vh);
+#board {
+  height: calc(var(--unit-grid) * (var(--N) + 4));
+  width: auto;
 }
-.margin,
-button {
-  height: calc(min(97vw, 80vh) / 10);
-  width: calc(min(97vw, 80vh) / 10);
-
-  font-size: calc(min(97vw, 80vh) / 36);
+#controller {
+  height: auto;
+  width: calc(var(--unit-grid) * 6);
 }
 /* } */
-
 @media (orientation: landscape) {
-  .root {
+  :root {
+    --unit-grid: min(calc(100vw / (var(--N) + 5)), calc(98vh / var(--N)));
+  }
+  .parallel {
     flex-direction: row;
   }
-  .buttons {
+  .perpendicular {
     flex-direction: column;
   }
-  canvas {
-    height: min(97vh, 80vw);
-    width: min(97vh, 80vw);
+  #board {
+    height: auto;
+    width: calc(var(--unit-grid) * (var(--N) + 5));
   }
-  .margin,
-  button {
-    height: calc(min(97vh, 80vw) / 10);
-    width: calc(min(97vh, 80vw) / 10);
+  #controller {
+    height: calc(var(--unit-grid) * 5);
+    width: auto;
+  }
+}
 
-    font-size: calc(min(97vh, 80vw) / 36);
-  }
+html {
+  touch-action: manipulation;
 }
 
 /* animation */
