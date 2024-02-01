@@ -1,4 +1,4 @@
-console.log("ver 0.2");
+console.log("ver 0.3");
 
 //setting
 const H = 12;
@@ -12,9 +12,12 @@ const dy = [0, 1, 0, -1];
 function inner(x, y) {
   return 0 <= x && x < H && 0 <= y && y < W;
 }
+function reachable(x, y) {
+  return inner(x, y) && !rock[x][y];
+}
 
 //state
-//question
+//q
 let sx, sy, tx, ty, n;
 let rock = [];
 for (let i = 0; i < H; ++i) rock[i] = [];
@@ -26,11 +29,9 @@ canvas.height = H * L;
 canvas.width = W * L;
 const ctx = canvas.getContext("2d");
 ctx.lineWidth = T;
-ctx.strokeStyle = "black";
 
 //event
 window.onload = set;
-display.onclick = set;
 resetButton.onclick = reset;
 down.onclick = function () {
   move(0);
@@ -44,31 +45,26 @@ up.onclick = function () {
 left.onclick = function () {
   move(3);
 };
+
 //question
 function set() {
   for (let i = 0; i < H; ++i) rock[i].fill(false);
-
-  //岩の配置を作成
   putRocks();
+  setStartGoal();
 
-  //直径の算出
-  sx = 0;
-  sy = 0;
-  tx = 11;
-  ty = 11;
-  n = 12;
-  //直径経路のうち一つを算出
   //ダミー岩の配置
+  //  経路の計算
   //  ※盤面が難しくなることを期待しているため、簡単になるようなら廃止
   //  ※選択肢の複雑性を計算できるのがベスト
+
   //描画
   reset();
 }
 
-const N = 12;
 function putRocks() {
   if (true) {
-    //案1 : ランダム配置
+    //ランダム配置
+    const N = 8 + Math.random() * 8;
     for (let _ = 0; _ < N; ++_) {
       const id = Math.floor(Math.random() * H * W);
       const x = (id - (id % W)) / W;
@@ -76,20 +72,75 @@ function putRocks() {
       rock[x][y] = true;
     }
   } else {
-    //案2 : 想定パスを作成し、岩を配置
+    //想定パスを作成し、岩を配置
+    //※未実装
     genPath();
   }
 }
 
-function calcDiameter() {
+function setStartGoal() {
   //Dijkstra
-  //  ※重かったらdouble sweepによる近似に切り替える
-  let d = new Array(H);
+  //  ※代案 : double sweepによる近似アルゴリズム
+  let d = [];
+  for (let x = 0; x < H; ++x) {
+    d[x] = [];
+    for (let y = 0; y < W; ++y) {
+      d[x][y] = [];
+      for (let nx = 0; nx < H; ++nx) d[x][y][nx] = new Array(W).fill(Infinity);
+      if (reachable(x, y)) d[x][y][x][y] = 0;
+    }
+  }
   for (let x = 0; x < H; ++x)
-    for (let y = 0; y < W; ++y) for (let nx = 0; nx < H; ++nx);
+    for (let y = 0; y < W; ++y) {
+      if (!reachable(x, y)) continue;
+      for (let k = 0; k < 4; ++k) {
+        let nx = x;
+        let ny = y;
+        while (reachable(nx + dx[k], ny + dy[k])) {
+          nx += dx[k];
+          ny += dy[k];
+        }
+        if (nx == x && ny == y) continue;
+        d[x][y][nx][ny] = 1;
+      }
+    }
+
+  for (let mx = 0; mx < H; ++mx)
+    for (let my = 0; my < W; ++my)
+      for (let x = 0; x < H; ++x)
+        for (let y = 0; y < W; ++y)
+          for (let nx = 0; nx < H; ++nx)
+            for (let ny = 0; ny < W; ++ny)
+              if (d[x][y][mx][my] + d[mx][my][nx][ny] < d[x][y][nx][ny])
+                d[x][y][nx][ny] = d[x][y][mx][my] + d[mx][my][nx][ny];
+
+  //最長経路
+  let m = -1;
+  let v = [];
+
+  for (let x = 0; x < H; ++x)
+    for (let y = 0; y < W; ++y)
+      for (let nx = 0; nx < H; ++nx)
+        for (let ny = 0; ny < W; ++ny) {
+          if (d[x][y][nx][ny] == Infinity) continue;
+          if (d[x][y][nx][ny] == m) v.push([x, y, nx, ny]);
+          else if (d[x][y][nx][ny] > m) {
+            m = d[x][y][nx][ny];
+            v = [[x, y, nx, ny]];
+          }
+        }
+
+  //random choice
+  const k = Math.floor(Math.random() * v.length);
+  sx = v[k][0];
+  sy = v[k][1];
+  tx = v[k][2];
+  ty = v[k][3];
+  n = m;
 }
 
 //generate path
+//  *not in use
 let x_min;
 let y_min;
 let x_max;
@@ -153,7 +204,6 @@ function genPath() {
   });
 }
 
-const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 async function move(k) {
   if (r <= 0) return;
   const px = cx;
@@ -161,10 +211,10 @@ async function move(k) {
   while (true) {
     const nx = cx + dx[k];
     const ny = cy + dy[k];
-    if (inner(nx, ny) && !rock[nx][ny]) {
+    if (reachable(nx, ny)) {
       cx = nx;
       cy = ny;
-      await sleep(10);
+      await sleep(20);
       draw();
     } else break;
   }
@@ -173,6 +223,7 @@ async function move(k) {
   display.innerHTML = r;
   judge();
 }
+const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function judge() {
   if (isCorrect()) {
@@ -212,14 +263,4 @@ function drawCell(x, y) {
     ctx.fillRect(y * L, x * L, L, L);
   }
   ctx.strokeRect(y * L, x * L, L, L);
-}
-function drawPath() {
-  let N = p.length;
-  for (let i = 0; i < N - 1; ++i) {
-    ctx.strokeStyle = color(i / (N - 2));
-    ctx.beginPath();
-    ctx.moveTo(p[i][1] * L + L / 2, p[i][0] * L + L / 2);
-    ctx.lineTo(p[i + 1][1] * L + L / 2, p[i + 1][0] * L + L / 2);
-    ctx.stroke();
-  }
 }
