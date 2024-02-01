@@ -1,4 +1,4 @@
-console.log("ver 0.0");
+console.log("ver 0.1");
 
 //setting
 const H = 12;
@@ -9,50 +9,84 @@ const T = 6;
 //grid
 const dx = [1, 0, -1, 0];
 const dy = [0, 1, 0, -1];
-function rot(nx, ny) {
-  return [
-    [nx * nx, 0, ny],
-    [0, ny * ny, -nx],
-    [-ny, nx, 0],
-  ];
+function inner(x, y) {
+  return 0 <= x && x < H && 0 <= y && y < W;
 }
 
 //state
-//answer
-let a = new Array(H);
-for (let i = 0; i < H; ++i) a[i] = new Array(W);
-//choice
-let b = new Array(H);
-for (let i = 0; i < H; ++i) b[i] = new Array(W);
-//path
-let p = new Array();
+//question
+let sx, sy, tx, ty, n;
+let rock = [];
+for (let i = 0; i < H; ++i) rock[i] = [];
+//current
+let cx, cy, r;
 
 //canvas
 canvas.height = H * L;
 canvas.width = W * L;
 const ctx = canvas.getContext("2d");
-ctx.fillStyle = "rgba(" + [0, 0, 0, 0.5] + ")";
 ctx.lineWidth = T;
+ctx.strokeStyle = "black";
 
 //event
 window.onload = set;
-canvas.onclick = function (event) {
-  const rct = canvas.getBoundingClientRect();
-  let i = Math.floor(((event.pageY - rct.top) * H) / rct.height);
-  let j = Math.floor(((event.pageX - rct.left) * W) / rct.width);
-  toggle(i, j);
+display.onclick = set;
+resetButton.onclick = reset;
+down.onclick = function () {
+  move(0);
 };
-function toggle(i, j) {
-  if (b[i][j]) {
-    b[i][j] = false;
-    ctx.clearRect(j * L, i * L, L, L);
-    ctx.strokeStyle = "black";
-    ctx.strokeRect(j * L, i * L, L, L);
+right.onclick = function () {
+  move(1);
+};
+up.onclick = function () {
+  move(2);
+};
+left.onclick = function () {
+  move(3);
+};
+//question
+function set() {
+  for (let i = 0; i < H; ++i) rock[i].fill(false);
+
+  //岩の配置を作成
+  putRocks();
+
+  //直径の算出
+  sx = 0;
+  sy = 0;
+  tx = 11;
+  ty = 11;
+  n = 10;
+  //直径経路のうち一つを算出
+  //ダミー岩の配置
+  //  ※盤面が難しくなることを期待しているため、簡単になるようなら廃止
+  //  ※選択肢の複雑性を計算できるのがベスト
+  //描画
+  reset();
+}
+
+const N = 12;
+function putRocks() {
+  if (true) {
+    //案1 : ランダム配置
+    for (let _ = 0; _ < N; ++_) {
+      const id = Math.floor(Math.random() * H * W);
+      const x = (id - (id % W)) / W;
+      const y = id % W;
+      rock[x][y] = true;
+    }
   } else {
-    b[i][j] = true;
-    ctx.fillRect(j * L, i * L, L, L);
+    //案2 : 想定パスを作成し、岩を配置
+    genPath();
   }
-  drawPath();
+}
+
+function calcDiameter() {
+  //Dijkstra
+  //  ※重かったらdouble sweepによる近似に切り替える
+  let d = new Array(H);
+  for (let x = 0; x < H; ++x)
+    for (let y = 0; y < W; ++y) for (let nx = 0; nx < H; ++nx);
 }
 
 //generate path
@@ -61,7 +95,10 @@ let y_min;
 let x_max;
 let y_max;
 let visited;
-function add(p) {
+let passed;
+let p = [];
+function add() {
+  return false;
   const x = p[p.length - 1][0];
   const y = p[p.length - 1][1];
   let legal = [];
@@ -116,58 +153,63 @@ function genPath() {
   });
 }
 
-//question
-function set() {
-  genPath();
-
-  //make answer list
-  for (let i = 0; i < H; ++i) a[i].fill(false);
-
-  a[p[0][0]][p[0][1]] = true;
-  let v = [0, 0, 1];
-  let N = p.length;
-  for (let i = 1; i < N; ++i) {
-    const dx = p[i][0] - p[i - 1][0];
-    const dy = p[i][1] - p[i - 1][1];
-    const r = rot(-dy, dx);
-    let nv = [0, 0, 0];
-    for (let i = 0; i < 3; ++i)
-      for (let j = 0; j < 3; ++j) nv[i] += r[i][j] * v[j];
-    for (let i = 0; i < 3; ++i) v[i] = nv[i];
-
-    if (v[2] == 1) a[p[i][0]][p[i][1]] = true;
+function move(k) {
+  if (r <= 0) return;
+  --r;
+  display.innerHTML = r;
+  const px = cx;
+  const py = cy;
+  while (true) {
+    const nx = cx + dx[k];
+    const ny = cy + dy[k];
+    if (inner(nx, ny) && !rock[nx][ny]) {
+      cx = nx;
+      cy = ny;
+    } else break;
   }
-  clear();
+  drawCell(px, py);
+  drawCell(cx, cy);
+  judge();
 }
+
 function judge() {
-  canvas.classList.remove("correct", "incorrect");
-  canvas.offsetWidth;
   if (isCorrect()) {
+    canvas.classList.remove("correct");
+    canvas.offsetWidth;
     canvas.classList.add("correct");
     set();
-  } else canvas.classList.add("incorrect");
+  }
 }
 function isCorrect() {
-  for (let i = 0; i < H; ++i)
-    for (let j = 0; j < W; ++j) if (b[i][j] != a[i][j]) return false;
-  return true;
+  return cx == tx && cy == ty;
 }
 
 //draw
-function clear() {
-  for (let i = 0; i < H; ++i) b[i].fill(false);
-  b[p[0][0]][p[0][1]] = true;
+function reset() {
+  cx = sx;
+  cy = sy;
+  r = n;
+  display.innerHTML = r;
   draw();
 }
 function draw() {
   for (let i = 0; i < H; ++i) for (let j = 0; j < W; ++j) drawCell(i, j);
-  drawPath();
 }
-function drawCell(i, j) {
-  ctx.clearRect(j * L, i * L, L, L);
-  ctx.strokeStyle = "black";
-  ctx.strokeRect(j * L, i * L, L, L);
-  if (b[i][j]) ctx.fillRect(j * L, i * L, L, L);
+function drawCell(x, y) {
+  ctx.clearRect(y * L, x * L, L, L);
+  if (rock[x][y]) {
+    ctx.fillStyle = "black";
+    ctx.fillRect(y * L, x * L, L, L);
+  }
+  if (x == tx && y == ty) {
+    ctx.fillStyle = "red";
+    ctx.fillRect(y * L, x * L, L, L);
+  }
+  if (x == cx && y == cy) {
+    ctx.fillStyle = "lime";
+    ctx.fillRect(y * L, x * L, L, L);
+  }
+  ctx.strokeRect(y * L, x * L, L, L);
 }
 function drawPath() {
   let N = p.length;
@@ -178,37 +220,4 @@ function drawPath() {
     ctx.lineTo(p[i + 1][1] * L + L / 2, p[i + 1][0] * L + L / 2);
     ctx.stroke();
   }
-}
-function color(h) {
-  let x, y, z;
-  // h *= 2 / 3; //blue
-  h *= 3 / 4; //violet
-  // h *= 19 / 24; //purple
-  // h *= 5 / 6; //magenta
-  if (h < 1 / 6) {
-    x = 1;
-    y = h * 6;
-    z = 0;
-  } else if (h < 2 / 6) {
-    x = (1 / 3 - h) * 6;
-    y = 1;
-    z = 0;
-  } else if (h < 3 / 6) {
-    x = 0;
-    y = 1;
-    z = (h - 1 / 3) * 6;
-  } else if (h < 4 / 6) {
-    x = 0;
-    y = (2 / 3 - h) * 6;
-    z = 1;
-  } else if (h < 5 / 6) {
-    x = (h - 2 / 3) * 6;
-    y = 0;
-    z = 1;
-  } else {
-    x = 1;
-    y = 0;
-    z = (1 - h) * 6;
-  }
-  return "rgb(" + [x * 255, y * 255, z * 255] + ")";
 }

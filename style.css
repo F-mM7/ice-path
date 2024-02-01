@@ -29,7 +29,8 @@ li {
   list-style: none;
 }
 
-button {
+button,
+#display {
   display: flex;
   height: var(--unit-grid);
   width: var(--unit-grid);
@@ -56,7 +57,7 @@ button {
 }
 #controller {
   height: auto;
-  width: calc(var(--unit-grid) * 6);
+  width: calc(var(--unit-grid) * 8);
 }
 /* } */
 @media (orientation: landscape) {
@@ -74,7 +75,7 @@ button {
     width: calc(var(--unit-grid) * (var(--N) + 5));
   }
   #controller {
-    height: calc(var(--unit-grid) * 5);
+    height: calc(var(--unit-grid) * 7);
     width: auto;
   }
 }
