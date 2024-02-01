@@ -45,6 +45,7 @@ const WASD = ["S", "D", "W", "A"];
 const PAD = ["D", "R", "U", "L"];
 function downKey(e) {
   if (!e.ctrlKey && e.code.substring(0, 3) == "Key") {
+    if (e.code[3] == "R") reset();
     const k = WASD.indexOf(e.code[3]);
     move(k);
   } else if (e.code.substring(0, 5) == "Arrow") {
@@ -64,7 +65,6 @@ function set() {
   //  ※盤面が難しくなることを期待しているため、簡単になるようなら廃止
   //  ※選択肢の複雑性を計算できるのがベスト
 
-  //描画
   reset();
 }
 
