@@ -1,4 +1,4 @@
-console.log("ver 0.1");
+console.log("ver 0.2");
 
 //setting
 const H = 12;
@@ -56,7 +56,7 @@ function set() {
   sy = 0;
   tx = 11;
   ty = 11;
-  n = 10;
+  n = 12;
   //直径経路のうち一つを算出
   //ダミー岩の配置
   //  ※盤面が難しくなることを期待しているため、簡単になるようなら廃止
@@ -153,10 +153,9 @@ function genPath() {
   });
 }
 
-function move(k) {
+const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+async function move(k) {
   if (r <= 0) return;
-  --r;
-  display.innerHTML = r;
   const px = cx;
   const py = cy;
   while (true) {
@@ -165,10 +164,13 @@ function move(k) {
     if (inner(nx, ny) && !rock[nx][ny]) {
       cx = nx;
       cy = ny;
+      await sleep(10);
+      draw();
     } else break;
   }
-  drawCell(px, py);
-  drawCell(cx, cy);
+  if (cx == px && cy == py) return;
+  --r;
+  display.innerHTML = r;
   judge();
 }
 
