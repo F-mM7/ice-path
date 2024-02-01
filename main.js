@@ -1,4 +1,4 @@
-console.log("ver 0.3");
+console.log("ver 0.4");
 
 //setting
 const H = 12;
@@ -33,18 +33,25 @@ ctx.lineWidth = T;
 //event
 window.onload = set;
 resetButton.onclick = reset;
-down.onclick = function () {
-  move(0);
-};
-right.onclick = function () {
-  move(1);
-};
-up.onclick = function () {
-  move(2);
-};
-left.onclick = function () {
-  move(3);
-};
+let key_dom = [down, right, up, left];
+for (let k = 0; k < 4; ++k)
+  key_dom[k].onclick = function () {
+    move(k);
+  };
+
+//key board
+document.addEventListener("keydown", downKey);
+const WASD = ["S", "D", "W", "A"];
+const PAD = ["D", "R", "U", "L"];
+function downKey(e) {
+  if (!e.ctrlKey && e.code.substring(0, 3) == "Key") {
+    const k = WASD.indexOf(e.code[3]);
+    move(k);
+  } else if (e.code.substring(0, 5) == "Arrow") {
+    const k = PAD.indexOf(e.code[5]);
+    move(k);
+  }
+}
 
 //question
 function set() {
