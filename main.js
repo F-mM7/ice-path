@@ -1,10 +1,8 @@
-console.log("ver 0.4");
+console.log("ver 0.4.1");
+var delay = 20;
+var tq = new TaskQueue(delay);
 
-//setting
-const H = 12;
-const W = 12;
-const L = 40;
-const T = 6;
+var shouldDraw = true;
 
 //grid
 const dx = [1, 0, -1, 0];
@@ -22,36 +20,36 @@ let sx, sy, tx, ty, n;
 let rock = [];
 for (let i = 0; i < H; ++i) rock[i] = [];
 //current
-let cx, cy, r;
-
-//canvas
-canvas.height = H * L;
-canvas.width = W * L;
-const ctx = canvas.getContext("2d");
-ctx.lineWidth = T;
+let cx, cy, r, cleared;
 
 //event
-window.onload = set;
-resetButton.onclick = reset;
+window.onload = function () {
+  set();
+  reset();
+};
+// resetButton.onclick = function () {
+//   promise = promise.then(resetNew, null);
+// };
 let key_dom = [down, right, up, left];
-for (let k = 0; k < 4; ++k)
-  key_dom[k].onclick = function () {
-    move(k);
-  };
+for (let k = 0; k < 4; ++k) key_dom[k].onclick = move.bind(0, k);
 
 //key board
 document.addEventListener("keydown", downKey);
 const WASD = ["S", "D", "W", "A"];
 const PAD = ["D", "R", "U", "L"];
 function downKey(e) {
-  if (!e.ctrlKey && e.code.substring(0, 3) == "Key") {
-    if (e.code[3] == "R") reset();
-    const k = WASD.indexOf(e.code[3]);
-    move(k);
-  } else if (e.code.substring(0, 5) == "Arrow") {
-    const k = PAD.indexOf(e.code[5]);
-    move(k);
+  if (e.ctrlKey) return;
+  if (e.code == "KeyR") {
+    tq.before = 0;
+    shouldDraw = false;
+    tq.close(reset);
   }
+  let k;
+  if (e.code.substring(0, 3) == "Key") k = WASD.indexOf(e.code[3]);
+  else if (e.code.substring(0, 5) == "Arrow") k = PAD.indexOf(e.code[5]);
+
+  if (k == -1) return;
+  move(k);
 }
 
 //question
@@ -59,13 +57,10 @@ function set() {
   for (let i = 0; i < H; ++i) rock[i].fill(false);
   putRocks();
   setStartGoal();
-
   //ダミー岩の配置
   //  経路の計算
   //  ※盤面が難しくなることを期待しているため、簡単になるようなら廃止
   //  ※選択肢の複雑性を計算できるのがベスト
-
-  reset();
 }
 
 function putRocks() {
@@ -211,63 +206,49 @@ function genPath() {
   });
 }
 
-async function move(k) {
-  if (r <= 0) return;
-  const px = cx;
-  const py = cy;
+function move(k) {
+  if (r < 1) return;
+  if (!reachable(cx + dx[k], cy + dy[k])) return;
+  --r;
+  display.innerHTML = r;
   while (true) {
     const nx = cx + dx[k];
     const ny = cy + dy[k];
-    if (reachable(nx, ny)) {
-      cx = nx;
-      cy = ny;
-      await sleep(20);
-      draw();
-    } else break;
+    if (!reachable(nx, ny)) break;
+    tq.pushWithDelay(drawPasage.bind(0, cx, cy, nx, ny));
+    cx = nx;
+    cy = ny;
   }
-  if (cx == px && cy == py) return;
-  --r;
-  display.innerHTML = r;
-  judge();
+  tq.push(judge.bind(0, cx, cy));
 }
-const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-function judge() {
-  if (isCorrect()) {
-    canvas.classList.remove("correct");
-    canvas.offsetWidth;
-    canvas.classList.add("correct");
+function judge(x, y) {
+  if (cleared) return;
+  if (x == tx && y == ty) {
+    cleared = true;
+    // tq.before = 0;
     set();
+    // correctAnimation();
+    shouldDraw = false;
+    tq.close(function () {
+      correctAnimation();
+      reset();
+    });
   }
 }
-function isCorrect() {
-  return cx == tx && cy == ty;
+function correctAnimation() {
+  canvas.classList.remove("correct");
+  canvas.offsetWidth;
+  canvas.classList.add("correct");
 }
 
-//draw
 function reset() {
   cx = sx;
   cy = sy;
   r = n;
   display.innerHTML = r;
+  cleared = false;
+  tq.before = delay;
+  shouldDraw = true;
   draw();
-}
-function draw() {
-  for (let i = 0; i < H; ++i) for (let j = 0; j < W; ++j) drawCell(i, j);
-}
-function drawCell(x, y) {
-  ctx.clearRect(y * L, x * L, L, L);
-  if (rock[x][y]) {
-    ctx.fillStyle = "black";
-    ctx.fillRect(y * L, x * L, L, L);
-  }
-  if (x == tx && y == ty) {
-    ctx.fillStyle = "red";
-    ctx.fillRect(y * L, x * L, L, L);
-  }
-  if (x == cx && y == cy) {
-    ctx.fillStyle = "lime";
-    ctx.fillRect(y * L, x * L, L, L);
-  }
-  ctx.strokeRect(y * L, x * L, L, L);
 }
