@@ -1,4 +1,5 @@
 console.log("ver 0.4");
+var promise = Promise.resolve();
 
 //setting
 const H = 12;
@@ -31,27 +32,31 @@ const ctx = canvas.getContext("2d");
 ctx.lineWidth = T;
 
 //event
-window.onload = set;
-resetButton.onclick = reset;
+window.onload = function () {
+  set();
+  promise = promise.then(resetNew, null);
+};
+// resetButton.onclick = function () {
+//   promise = promise.then(resetNew, null);
+// };
 let key_dom = [down, right, up, left];
-for (let k = 0; k < 4; ++k)
-  key_dom[k].onclick = function () {
-    move(k);
-  };
+for (let k = 0; k < 4; ++k) key_dom[k].onclick = moveNew.bind(null, k);
 
 //key board
 document.addEventListener("keydown", downKey);
 const WASD = ["S", "D", "W", "A"];
 const PAD = ["D", "R", "U", "L"];
 function downKey(e) {
+  let k;
   if (!e.ctrlKey && e.code.substring(0, 3) == "Key") {
-    if (e.code[3] == "R") reset();
-    const k = WASD.indexOf(e.code[3]);
-    move(k);
-  } else if (e.code.substring(0, 5) == "Arrow") {
-    const k = PAD.indexOf(e.code[5]);
-    move(k);
-  }
+    if (e.code[3] == "R") {
+      promise = promise.then(resetNew, null);
+      return;
+    } else k = WASD.indexOf(e.code[3]);
+  } else if (e.code.substring(0, 5) == "Arrow") k = PAD.indexOf(e.code[5]);
+
+  if (k == -1) return;
+  moveNew(k);
 }
 
 //question
@@ -64,8 +69,6 @@ function set() {
   //  経路の計算
   //  ※盤面が難しくなることを期待しているため、簡単になるようなら廃止
   //  ※選択肢の複雑性を計算できるのがベスト
-
-  reset();
 }
 
 function putRocks() {
@@ -211,26 +214,63 @@ function genPath() {
   });
 }
 
-async function move(k) {
-  if (r <= 0) return;
-  const px = cx;
-  const py = cy;
+function moveNew(k) {
   while (true) {
     const nx = cx + dx[k];
     const ny = cy + dy[k];
-    if (reachable(nx, ny)) {
-      cx = nx;
-      cy = ny;
-      await sleep(20);
-      draw();
-    } else break;
+    if (!reachable(nx, ny)) break;
+    promise = promise.then(task.bind(null, cx, cy, nx, ny));
+    cx = nx;
+    cy = ny;
   }
-  if (cx == px && cy == py) return;
   --r;
   display.innerHTML = r;
-  judge();
+  promise = promise.then(judgeNew.bind(null, cx, cy));
 }
-const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+function task(x, y, nx, ny) {
+  return new Promise(function (resolve) {
+    setTimeout(function () {
+      drawPasage(x, y, nx, ny);
+      resolve();
+    }, 20);
+  });
+}
+function drawPasage(x, y, nx, ny) {
+  drawCellWithConfig(x, y, x == tx && y == ty ? "red" : "transparent");
+  drawCellWithConfig(nx, ny, "lime");
+}
+function drawCellWithConfig(x, y, color) {
+  ctx.clearRect(y * L, x * L, L, L);
+  ctx.fillStyle = color;
+  ctx.fillRect(y * L, x * L, L, L);
+  ctx.strokeRect(y * L, x * L, L, L);
+}
+function judgeNew(x, y) {
+  return new Promise(function (resolve, reject) {
+    if (x == tx && y == ty) {
+      canvas.classList.remove("correct");
+      canvas.offsetWidth;
+      canvas.classList.add("correct");
+      console.log("collect");
+      set();
+      promise = promise.then(null, resetNew);
+      reject();
+    } else {
+      resolve();
+    }
+  });
+}
+
+function resetNew() {
+  return new Promise(function (resolve) {
+    cx = sx;
+    cy = sy;
+    r = n;
+    display.innerHTML = r;
+    draw();
+    resolve();
+  });
+}
 
 function judge() {
   if (isCorrect()) {
@@ -245,13 +285,6 @@ function isCorrect() {
 }
 
 //draw
-function reset() {
-  cx = sx;
-  cy = sy;
-  r = n;
-  display.innerHTML = r;
-  draw();
-}
 function draw() {
   for (let i = 0; i < H; ++i) for (let j = 0; j < W; ++j) drawCell(i, j);
 }
