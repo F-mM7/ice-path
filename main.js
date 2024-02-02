@@ -1,4 +1,4 @@
-console.log("ver 0.4.1");
+console.log("ver 0.5");
 var delay = 20;
 var tq = new TaskQueue(delay);
 

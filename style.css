@@ -32,8 +32,8 @@ li {
 button,
 #display {
   display: flex;
-  height: var(--unit-grid);
-  width: var(--unit-grid);
+  height: calc(var(--unit-grid) * 1.5);
+  width: calc(var(--unit-grid) * 1.5);
   padding: 0;
 
   font-size: calc(var(--unit-grid) / 1.2);
@@ -43,7 +43,7 @@ button,
 
 /* @media (orientation: portrait) { */
 :root {
-  --unit-grid: min(calc(100vh / (var(--N) + 4)), calc(98vw / var(--N)));
+  --unit-grid: min(calc(100vh / (var(--N) + 5)), calc(98vw / var(--N)));
 }
 .parallel {
   flex-direction: column;
@@ -52,17 +52,17 @@ button,
   flex-direction: row;
 }
 #board {
-  height: calc(var(--unit-grid) * (var(--N) + 4));
+  height: calc(var(--unit-grid) * (var(--N) + 5));
   width: auto;
 }
 #controller {
   height: auto;
-  width: calc(var(--unit-grid) * 8);
+  width: calc(var(--unit-grid) * 10.5);
 }
 /* } */
 @media (orientation: landscape) {
   :root {
-    --unit-grid: min(calc(100vw / (var(--N) + 5)), calc(98vh / var(--N)));
+    --unit-grid: min(calc(100vw / (var(--N) + 6.5)), calc(98vh / var(--N)));
   }
   .parallel {
     flex-direction: row;
@@ -72,10 +72,10 @@ button,
   }
   #board {
     height: auto;
-    width: calc(var(--unit-grid) * (var(--N) + 5));
+    width: calc(var(--unit-grid) * (var(--N) + 6.5));
   }
   #controller {
-    height: calc(var(--unit-grid) * 7);
+    height: calc(var(--unit-grid) * 9);
     width: auto;
   }
 }
