@@ -32,6 +32,11 @@ window.onload = function () {
 // };
 let key_dom = [down, right, up, left];
 for (let k = 0; k < 4; ++k) key_dom[k].onclick = move.bind(0, k);
+resetButton.onclick = function () {
+  tq.before = 0;
+  shouldDraw = false;
+  tq.close(reset);
+};
 
 //key board
 document.addEventListener("keydown", downKey);
