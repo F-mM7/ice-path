@@ -59,32 +59,20 @@ function set() {
   for (let i = 0; i < H; ++i) rock[i].fill(false);
   putRocks();
   setStartGoal();
-  //ダミー岩の配置
-  //  経路の計算
-  //  ※盤面が難しくなることを期待しているため、簡単になるようなら廃止
-  //  ※選択肢の複雑性を計算できるのがベスト
 }
 
 function putRocks() {
-  if (true) {
-    //ランダム配置
-    const N = 8 + Math.random() * 8;
-    for (let _ = 0; _ < N; ++_) {
-      const id = Math.floor(Math.random() * H * W);
-      const x = (id - (id % W)) / W;
-      const y = id % W;
-      rock[x][y] = true;
-    }
-  } else {
-    //想定パスを作成し、岩を配置
-    //※未実装
-    genPath();
+  const N = 8 + Math.random() * 8;
+  for (let _ = 0; _ < N; ++_) {
+    const id = Math.floor(Math.random() * H * W);
+    const x = (id - (id % W)) / W;
+    const y = id % W;
+    rock[x][y] = true;
   }
 }
 
 function setStartGoal() {
   //Dijkstra
-  //  ※代案 : double sweepによる近似アルゴリズム
   let d = [];
   for (let x = 0; x < H; ++x) {
     d[x] = [];
@@ -119,7 +107,7 @@ function setStartGoal() {
                 d[x][y][nx][ny] = d[x][y][mx][my] + d[mx][my][nx][ny];
 
   //最長経路
-  let m = -1;
+  let m = 1;
   let v = [];
 
   for (let x = 0; x < H; ++x)
@@ -134,7 +122,6 @@ function setStartGoal() {
           }
         }
 
-  //random choice
   const k = Math.floor(Math.random() * v.length);
   sx = v[k][0];
   sy = v[k][1];
@@ -142,71 +129,6 @@ function setStartGoal() {
   ty = v[k][3];
   console.log(d[sx][sy]);
   n = m;
-}
-
-//generate path
-//  *not in use
-let x_min;
-let y_min;
-let x_max;
-let y_max;
-let visited;
-let passed;
-let p = [];
-function add() {
-  return false;
-  const x = p[p.length - 1][0];
-  const y = p[p.length - 1][1];
-  let legal = [];
-  for (let k = 0; k < 4; ++k) {
-    const nx = x + dx[k];
-    const ny = y + dy[k];
-
-    if (
-      nx - x_min >= H ||
-      ny - y_min >= W ||
-      x_max - nx >= H ||
-      y_max - ny >= W
-    )
-      continue;
-    if (visited[[nx, ny]]) continue;
-
-    legal.push(k);
-  }
-
-  if (legal.length == 0) return false;
-
-  const k = legal[Math.floor(Math.random() * legal.length)];
-  const nx = x + dx[k];
-  const ny = y + dy[k];
-
-  visited[[nx, ny]] = true;
-  p.push([nx, ny]);
-  x_min = Math.min(x_min, x);
-  y_min = Math.min(y_min, y);
-  x_max = Math.max(x_max, x);
-  y_max = Math.max(y_max, y);
-
-  return true;
-}
-function genPath() {
-  p.splice(0);
-  p.push([0, 0]);
-  x_min = 0;
-  y_min = 0;
-  x_max = 0;
-  y_max = 0;
-  visited = {};
-  visited[[0, 0]] = true;
-
-  while (add(p)) { }
-  p = [...p].reverse();
-  while (add(p)) { }
-
-  p.forEach((e) => {
-    e[0] -= x_min;
-    e[1] -= y_min;
-  });
 }
 
 function move(k) {
@@ -229,8 +151,8 @@ function judge(x, y) {
   if (cleared) return;
   if (x == tx && y == ty) {
     cleared = true;
-    set();
     shouldDraw = false;
+    set();
     tq.close(function () {
       correctAnimation();
       reset();
