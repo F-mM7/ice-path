@@ -6,20 +6,17 @@ let shouldDraw;
 //grid
 const dx = [1, 0, -1, 0];
 const dy = [0, 1, 0, -1];
-function inner(x, y) {
-  return 0 <= x && x < H && 0 <= y && y < W;
-}
 function reachable(x, y) {
-  return inner(x, y) && !rock[x][y];
+  return 0 <= x && x < H && 0 <= y && y < W && !rock[x][y];
 }
 
 //state
-//q
+//  q
 let sx, sy, tx, ty, n;
 let rock = [];
 for (let i = 0; i < H; ++i) rock[i] = [];
-//current
-let cx, cy, r, cleared;
+//  current
+let cx, cy, r;
 
 window.onload = function () {
   set();
@@ -148,9 +145,7 @@ function move(k) {
 }
 
 function judge(x, y) {
-  if (cleared) return;
   if (x == tx && y == ty) {
-    cleared = true;
     shouldDraw = false;
     set();
     tq.close(function () {
@@ -170,7 +165,6 @@ function reset() {
   cy = sy;
   r = n;
   display.innerHTML = r;
-  cleared = false;
   tq.before = delay;
   shouldDraw = true;
   draw();

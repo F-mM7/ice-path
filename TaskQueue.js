@@ -1,7 +1,7 @@
 class TaskQueue {
   p = Promise.resolve();
-  before = 100;
-  after = 0;
+  before;
+  after;
   constructor(before = 0, after = 0) {
     this.before = before;
     this.after = after;
