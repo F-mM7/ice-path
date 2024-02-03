@@ -22,27 +22,25 @@ for (let i = 0; i < H; ++i) rock[i] = [];
 //current
 let cx, cy, r, cleared;
 
-//event
 window.onload = function () {
   set();
   reset();
 };
-// resetButton.onclick = function () {
-//   promise = promise.then(resetNew, null);
-// };
-let key_dom = [down, right, up, left];
-for (let k = 0; k < 4; ++k) key_dom[k].onclick = move.bind(0, k);
+
+//button
 resetButton.onclick = function () {
   tq.before = 0;
   shouldDraw = false;
   tq.close(reset);
 };
+let key_dom = [down, right, up, left];
+for (let k = 0; k < 4; ++k) key_dom[k].onclick = move.bind(0, k);
 
-//key board
-document.addEventListener("keydown", downKey);
-const WASD = ["S", "D", "W", "A"];
-const PAD = ["D", "R", "U", "L"];
-function downKey(e) {
+//keyboard
+document.addEventListener("keydown", keydownEvent);
+const KEY = ["KeyS", "KeyD", "KeyW", "KeyA"];
+const ARROW = ["ArrowDown", "ArrowRight", "ArrowUp", "ArrowLeft"];
+function keydownEvent(e) {
   if (e.ctrlKey) return;
   if (e.code == "KeyR") {
     tq.before = 0;
@@ -50,8 +48,8 @@ function downKey(e) {
     tq.close(reset);
   }
   let k;
-  if (e.code.substring(0, 3) == "Key") k = WASD.indexOf(e.code[3]);
-  else if (e.code.substring(0, 5) == "Arrow") k = PAD.indexOf(e.code[5]);
+  if (e.code.substring(0, 3) == "Key") k = KEY.indexOf(e.code);
+  else if (e.code.substring(0, 5) == "Arrow") k = ARROW.indexOf(e.code);
 
   if (k == -1) return;
   move(k);
@@ -143,6 +141,7 @@ function setStartGoal() {
   sy = v[k][1];
   tx = v[k][2];
   ty = v[k][3];
+  console.log(d[sx][sy]);
   n = m;
 }
 
