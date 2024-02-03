@@ -11,33 +11,27 @@ const ctx = canvas.getContext("2d");
 ctx.lineWidth = T;
 
 function drawPasage(x, y, nx, ny) {
-  drawCellWithConfig(x, y, x == tx && y == ty ? "red" : "transparent");
-  drawCellWithConfig(nx, ny, shouldDraw ? "lime" : "transparent");
+  if (!shouldDraw) return;
+  drawCell(x, y, x == tx && y == ty ? "red" : "transparent");
+  drawCell(nx, ny, "lime");
 }
-function drawCellWithConfig(x, y, color) {
+function drawCell(x, y, color) {
   ctx.clearRect(y * L, x * L, L, L);
-  ctx.fillStyle = color;
-  ctx.fillRect(y * L, x * L, L, L);
+  fillRect(x, y, color)
   ctx.strokeRect(y * L, x * L, L, L);
 }
 
-//draw
 function draw() {
-  for (let i = 0; i < H; ++i) for (let j = 0; j < W; ++j) drawCell(i, j);
+  ctx.clearRect(0, 0, L * W, L * H);
+  for (let x = 0; x < H; ++x) for (let y = 0; y < W; ++y) {
+    if (rock[x][y]) fillRect(x, y, "black")
+    else if (x == cx && y == cy) fillRect(x, y, "lime");
+    else if (x == tx && y == ty) fillRect(x, y, "red")
+    ctx.strokeRect(y * L, x * L, L, L);
+  }
 }
-function drawCell(x, y) {
-  ctx.clearRect(y * L, x * L, L, L);
-  if (rock[x][y]) {
-    ctx.fillStyle = "black";
-    ctx.fillRect(y * L, x * L, L, L);
-  }
-  if (x == tx && y == ty) {
-    ctx.fillStyle = "red";
-    ctx.fillRect(y * L, x * L, L, L);
-  }
-  if (x == cx && y == cy) {
-    ctx.fillStyle = "lime";
-    ctx.fillRect(y * L, x * L, L, L);
-  }
-  ctx.strokeRect(y * L, x * L, L, L);
+
+function fillRect(x, y, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(y * L, x * L, L, L);
 }

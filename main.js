@@ -1,8 +1,7 @@
 console.log("ver 0.5");
-var delay = 20;
-var tq = new TaskQueue(delay);
-
-var shouldDraw = true;
+const delay = 20;
+const tq = new TaskQueue(delay);
+let shouldDraw;
 
 //grid
 const dx = [1, 0, -1, 0];
@@ -200,9 +199,9 @@ function genPath() {
   visited = {};
   visited[[0, 0]] = true;
 
-  while (add(p)) {}
+  while (add(p)) { }
   p = [...p].reverse();
-  while (add(p)) {}
+  while (add(p)) { }
 
   p.forEach((e) => {
     e[0] -= x_min;
@@ -230,9 +229,7 @@ function judge(x, y) {
   if (cleared) return;
   if (x == tx && y == ty) {
     cleared = true;
-    // tq.before = 0;
     set();
-    // correctAnimation();
     shouldDraw = false;
     tq.close(function () {
       correctAnimation();
