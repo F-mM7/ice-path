@@ -1,16 +1,13 @@
-console.log("ver 0.5");
+console.log("ver 0.6");
 const delay = 20;
 const tq = new TaskQueue(delay);
-let shouldDraw;
+let freeze;
 
-window.onload = function () {
-  set();
-  reset();
-};
+window.onload = set;
 
 //button
 resetButton.onclick = pushReset;
-let key_dom = [down, right, up, left];
+const key_dom = [down, right, up, left];
 for (let k = 0; k < 4; ++k) key_dom[k].onclick = move.bind(0, k);
 
 //keyboard
@@ -29,23 +26,49 @@ function keydownEvent(e) {
   move(k);
 }
 
+function set() {
+  for (let i = 0; i < H; ++i) rock[i].fill(false);
+  putRocks();
+  setStartGoal();
+  reset();
+}
+function reset() {
+  cx = sx;
+  cy = sy;
+  r = n;
+
+  draw();
+  display.innerHTML = r;
+
+  freeze = false;
+  tq.before = delay;
+}
 function pushReset() {
+  freeze = true;
   tq.before = 0;
-  shouldDraw = false;
-  tq.close(reset);
+  tq.push(reset);
 }
 function move(k) {
+  if (freeze) return;
   if (r < 1) return;
   if (!reachable(cx + dx[k], cy + dy[k])) return;
   --r;
   display.innerHTML = r;
-  while (true) {
-    const nx = cx + dx[k];
-    const ny = cy + dy[k];
-    if (!reachable(nx, ny)) break;
-    tq.pushWithDelay(drawPasage.bind(0, cx, cy, nx, ny));
-    cx = nx;
-    cy = ny;
+  while (reachable(cx + dx[k], cy + dy[k])) {
+    tq.pushWithDelay(drawPasage.bind(0, cx, cy, cx + dx[k], cy + dy[k]));
+    cx += dx[k];
+    cy += dy[k];
   }
-  tq.push(judge.bind(0, cx, cy));
+  if (cx == tx && cy == ty) tq.push(AcHandling);
+}
+function AcHandling() {
+  if (freeze) return;
+  AcAnimation();
+  set();
+}
+
+function AcAnimation() {
+  canvas.classList.remove("correct");
+  canvas.offsetWidth;
+  canvas.classList.add("correct");
 }

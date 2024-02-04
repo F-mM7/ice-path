@@ -13,22 +13,6 @@ for (let i = 0; i < H; ++i) rock[i] = [];
 //  current
 let cx, cy, r;
 
-//question
-function set() {
-  for (let i = 0; i < H; ++i) rock[i].fill(false);
-  putRocks();
-  setStartGoal();
-}
-function reset() {
-  cx = sx;
-  cy = sy;
-  r = n;
-  display.innerHTML = r;
-  tq.before = delay;
-  shouldDraw = true;
-  draw();
-}
-
 function putRocks() {
   const N = 8 + Math.random() * 8;
   for (let _ = 0; _ < N; ++_) {
@@ -97,18 +81,4 @@ function setStartGoal() {
   ty = v[k][3];
   console.log(d[sx][sy]);
   n = m;
-}
-
-function judge(x, y) {
-  if (x == tx && y == ty) {
-    shouldDraw = false;
-    set();
-    correctAnimation();
-    reset();
-  }
-}
-function correctAnimation() {
-  canvas.classList.remove("correct");
-  canvas.offsetWidth;
-  canvas.classList.add("correct");
 }

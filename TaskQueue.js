@@ -26,24 +26,4 @@ class TaskQueue {
       }.bind(this)
     );
   }
-  close(after = null) {
-    this.p = this.p.then(
-      function () {
-        return new Promise(
-          function (_, rej) {
-            after();
-            //make state fulfilled
-            //  *promise = Promise.resolve();でもよいが
-            //  *catchするとerrorを吐かない
-            this.p = this.p.catch(function () {
-              return new Promise(function (res) {
-                res();
-              });
-            });
-            rej();
-          }.bind(this)
-        );
-      }.bind(this)
-    );
-  }
 }

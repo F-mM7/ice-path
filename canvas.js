@@ -26,7 +26,7 @@ function draw() {
     }
 }
 function drawPasage(x, y, nx, ny) {
-  if (!shouldDraw) return;
+  if (freeze) return;
   drawCell(x, y, x == tx && y == ty ? goal_color : "transparent");
   drawCell(nx, ny, piece_color);
 }
