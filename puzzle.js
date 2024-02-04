@@ -46,41 +46,80 @@ function setStartGoal() {
   Dijkstra();
 
   //最長経路
-  let m = 1;
+  const m = Math.max(
+    ...d
+      .flat()
+      .flat()
+      .flat()
+      .filter((x) => x != Infinity)
+  );
   let v = [];
 
   for (let x = 0; x < H; ++x)
     for (let y = 0; y < W; ++y)
       for (let nx = 0; nx < H; ++nx)
-        for (let ny = 0; ny < W; ++ny) {
-          if (d[x][y][nx][ny] == Infinity) continue;
+        for (let ny = 0; ny < W; ++ny)
           if (d[x][y][nx][ny] == m) v.push([x, y, nx, ny]);
-          else if (d[x][y][nx][ny] > m) {
-            m = d[x][y][nx][ny];
-            v = [[x, y, nx, ny]];
-          }
-        }
+
+  let dnm = {};
+  v.forEach((x) =>
+    (function (a, b, c, d) {
+      dnm[[a, b]] = 0;
+    })(...x)
+  );
+  v.forEach((x) =>
+    (function (a, b, c, d) {
+      dnm[[a, b]] += p[a][b][c][d];
+    })(...x)
+  );
+
+  function def(x) {
+    return (function (a, b, c, d) {
+      return dnm[[a, b]] / p[a][b][c][d];
+    })(...x);
+  }
+
+  const def_max = Math.max(...v.map((x) => def(x)));
+  console.log(def_max);
+
+  v = v.filter((x) => def(x) == def_max);
+
+  console.log(v);
 
   const k = Math.floor(Math.random() * v.length);
+
   sx = v[k][0];
   sy = v[k][1];
   tx = v[k][2];
   ty = v[k][3];
   n = m;
-
-  console.log(d[sx][sy]);
+  // console.log(dnm[[sx, sy]] / p[sx][sy][tx][ty]);
 }
+
+let p = [];
+for (let x = 0; x < H; ++x) {
+  p[x] = [];
+  for (let y = 0; y < W; ++y) {
+    p[x][y] = [];
+    for (let nx = 0; nx < H; ++nx) p[x][y][nx] = new Array(W);
+  }
+}
+
 function Dijkstra() {
   //initialize
   for (let x = 0; x < H; ++x)
     for (let y = 0; y < W; ++y)
       for (let nx = 0; nx < H; ++nx) d[x][y][nx].fill(Infinity);
+  for (let x = 0; x < H; ++x)
+    for (let y = 0; y < W; ++y)
+      for (let nx = 0; nx < H; ++nx) p[x][y][nx].fill(0);
 
   //edge
   for (let x = 0; x < H; ++x)
     for (let y = 0; y < W; ++y) {
       if (!reachable(x, y)) continue;
       d[x][y][x][y] = 0;
+      p[x][y][x][y] = 0;
       for (let k = 0; k < 4; ++k) {
         if (!reachable(x + dx[k], y + dy[k])) continue;
         let nx = x + dx[k];
@@ -90,6 +129,7 @@ function Dijkstra() {
           ny += dy[k];
         }
         d[x][y][nx][ny] = 1;
+        p[x][y][nx][ny] = 1;
       }
     }
 
@@ -99,7 +139,12 @@ function Dijkstra() {
       for (let x = 0; x < H; ++x)
         for (let y = 0; y < W; ++y)
           for (let nx = 0; nx < H; ++nx)
-            for (let ny = 0; ny < W; ++ny)
-              if (d[x][y][mx][my] + d[mx][my][nx][ny] < d[x][y][nx][ny])
+            for (let ny = 0; ny < W; ++ny) {
+              if (d[x][y][mx][my] + d[mx][my][nx][ny] == d[x][y][nx][ny])
+                p[x][y][nx][ny] += p[x][y][mx][my] * p[mx][my][nx][ny];
+              if (d[x][y][mx][my] + d[mx][my][nx][ny] < d[x][y][nx][ny]) {
                 d[x][y][nx][ny] = d[x][y][mx][my] + d[mx][my][nx][ny];
+                p[x][y][nx][ny] = p[x][y][mx][my] * p[mx][my][nx][ny];
+              }
+            }
 }
