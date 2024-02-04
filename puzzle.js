@@ -61,30 +61,14 @@ function setStartGoal() {
         for (let ny = 0; ny < W; ++ny)
           if (d[x][y][nx][ny] == m) v.push([x, y, nx, ny]);
 
-  let dnm = {};
-  v.forEach((x) =>
-    (function (a, b, c, d) {
-      dnm[[a, b]] = 0;
-    })(...x)
-  );
-  v.forEach((x) =>
-    (function (a, b, c, d) {
-      dnm[[a, b]] += p[a][b][c][d];
-    })(...x)
-  );
-
-  function def(x) {
+  function prob(x) {
     return (function (a, b, c, d) {
-      return dnm[[a, b]] / p[a][b][c][d];
+      return p[a][b][c][d];
     })(...x);
   }
 
-  const def_max = Math.max(...v.map((x) => def(x)));
-  console.log(def_max);
-
-  v = v.filter((x) => def(x) == def_max);
-
-  console.log(v);
+  const prob_min = Math.min(...v.map((x) => prob(x)));
+  v = v.filter((x) => prob(x) == prob_min);
 
   const k = Math.floor(Math.random() * v.length);
 
@@ -93,12 +77,24 @@ function setStartGoal() {
   tx = v[k][2];
   ty = v[k][3];
   n = m;
-  // console.log(dnm[[sx, sy]] / p[sx][sy][tx][ty]);
+
+  console.log("diff :", (-Math.log2(prob_min)).toFixed(3));
+
+  // const prob_min_whole = Math.min(
+  //   ...p
+  //     .flat()
+  //     .flat()
+  //     .flat()
+  //     .filter((x) => x != 0 && x === x)
+  // );
+  // console.log("diff :", (-Math.log2(prob_min_whole)).toFixed(3));
 }
 
+let w = [];
 let p = [];
 for (let x = 0; x < H; ++x) {
   p[x] = [];
+  w[x] = new Array(W);
   for (let y = 0; y < W; ++y) {
     p[x][y] = [];
     for (let nx = 0; nx < H; ++nx) p[x][y][nx] = new Array(W);
@@ -113,13 +109,15 @@ function Dijkstra() {
   for (let x = 0; x < H; ++x)
     for (let y = 0; y < W; ++y)
       for (let nx = 0; nx < H; ++nx) p[x][y][nx].fill(0);
+  for (let x = 0; x < H; ++x) w[x].fill(0);
 
   //edge
   for (let x = 0; x < H; ++x)
     for (let y = 0; y < W; ++y) {
       if (!reachable(x, y)) continue;
       d[x][y][x][y] = 0;
-      p[x][y][x][y] = 0;
+      for (let k = 0; k < 4; ++k)
+        if (reachable(x + dx[k], y + dy[k])) ++w[x][y];
       for (let k = 0; k < 4; ++k) {
         if (!reachable(x + dx[k], y + dy[k])) continue;
         let nx = x + dx[k];
@@ -129,7 +127,7 @@ function Dijkstra() {
           ny += dy[k];
         }
         d[x][y][nx][ny] = 1;
-        p[x][y][nx][ny] = 1;
+        p[x][y][nx][ny] = 1 / w[x][y];
       }
     }
 
@@ -140,11 +138,23 @@ function Dijkstra() {
         for (let y = 0; y < W; ++y)
           for (let nx = 0; nx < H; ++nx)
             for (let ny = 0; ny < W; ++ny) {
-              if (d[x][y][mx][my] + d[mx][my][nx][ny] == d[x][y][nx][ny])
-                p[x][y][nx][ny] += p[x][y][mx][my] * p[mx][my][nx][ny];
-              if (d[x][y][mx][my] + d[mx][my][nx][ny] < d[x][y][nx][ny]) {
+              if (x == mx && y == my) continue;
+              if (mx == nx && my == ny) continue;
+              if (x == nx && y == ny) continue;
+              if (d[x][y][mx][my] + d[mx][my][nx][ny] == d[x][y][nx][ny]) {
+                p[x][y][nx][ny] +=
+                  p[x][y][mx][my] *
+                  (w[mx][my] / (w[mx][my] - 1)) *
+                  p[mx][my][nx][ny];
+              } else if (
+                d[x][y][mx][my] + d[mx][my][nx][ny] <
+                d[x][y][nx][ny]
+              ) {
                 d[x][y][nx][ny] = d[x][y][mx][my] + d[mx][my][nx][ny];
-                p[x][y][nx][ny] = p[x][y][mx][my] * p[mx][my][nx][ny];
+                p[x][y][nx][ny] =
+                  p[x][y][mx][my] *
+                  (w[mx][my] / (w[mx][my] - 1)) *
+                  p[mx][my][nx][ny];
               }
             }
 }
