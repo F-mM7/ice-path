@@ -22,7 +22,6 @@ function draw() {
     }
 }
 function drawPasage(x, y, nx, ny) {
-  if (freeze) return;
   drawCell(x, y, x == tx && y == ty ? goal_color : "transparent");
   drawCell(nx, ny, piece_color);
 }
@@ -41,4 +40,10 @@ function fill(x, y, color) {
 }
 function drawFrame(x, y) {
   ctx.strokeRect(y * L, x * L, L, L);
+}
+
+function AcAnimation() {
+  canvas.classList.remove("correct");
+  canvas.offsetWidth;
+  canvas.classList.add("correct");
 }

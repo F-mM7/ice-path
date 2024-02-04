@@ -1,7 +1,5 @@
-console.log("ver 0.6");
-const delay = 20;
-const tq = new TaskQueue(0, delay);
-let freeze;
+console.log("ver 0.7");
+const tq = new TaskQueue(0, 20);
 
 window.onload = set;
 
@@ -18,7 +16,7 @@ function keydownEvent(e) {
   if (e.ctrlKey) return;
   if (e.code == "KeyR") pushReset();
 
-  let k;
+  let k = -1;
   if (e.code.substring(0, 3) == "Key") k = KEY.indexOf(e.code);
   else if (e.code.substring(0, 5) == "Arrow") k = ARROW.indexOf(e.code);
 
@@ -38,16 +36,13 @@ function reset() {
   draw();
   display.innerHTML = r;
 
-  freeze = false;
-  tq.after = delay;
+  tq.melt();
 }
 function pushReset() {
-  freeze = true;
-  tq.after = 0;
-  tq.push(reset);
+  tq.freeze();
+  tq.pushForced(reset);
 }
 function move(k) {
-  if (freeze) return;
   if (r < 1) return;
   if (!reachable(cx + dx[k], cy + dy[k])) return;
   --r;
@@ -60,13 +55,6 @@ function move(k) {
   if (cx == tx && cy == ty) tq.push(AcHandling);
 }
 function AcHandling() {
-  if (freeze) return;
   AcAnimation();
   set();
-}
-
-function AcAnimation() {
-  canvas.classList.remove("correct");
-  canvas.offsetWidth;
-  canvas.classList.add("correct");
 }
