@@ -45,30 +45,23 @@ for (let x = 0; x < H; ++x) {
 function setStartGoal() {
   Dijkstra();
 
-  //最長経路
-  const m = Math.max(
-    ...d
+  //最難経路
+  const p_min = Math.min(
+    ...p
       .flat()
       .flat()
       .flat()
-      .filter((x) => x != Infinity)
+      .filter((x) => x != 0 && x === x)
   );
+  console.log("diff :", (-Math.log2(p_min)).toFixed(3));
+
   let v = [];
 
   for (let x = 0; x < H; ++x)
     for (let y = 0; y < W; ++y)
       for (let nx = 0; nx < H; ++nx)
         for (let ny = 0; ny < W; ++ny)
-          if (d[x][y][nx][ny] == m) v.push([x, y, nx, ny]);
-
-  function prob(x) {
-    return (function (a, b, c, d) {
-      return p[a][b][c][d];
-    })(...x);
-  }
-
-  const prob_min = Math.min(...v.map((x) => prob(x)));
-  v = v.filter((x) => prob(x) == prob_min);
+          if (p[x][y][nx][ny] == p_min) v.push([x, y, nx, ny]);
 
   const k = Math.floor(Math.random() * v.length);
 
@@ -76,18 +69,7 @@ function setStartGoal() {
   sy = v[k][1];
   tx = v[k][2];
   ty = v[k][3];
-  n = m;
-
-  console.log("diff :", (-Math.log2(prob_min)).toFixed(3));
-
-  // const prob_min_whole = Math.min(
-  //   ...p
-  //     .flat()
-  //     .flat()
-  //     .flat()
-  //     .filter((x) => x != 0 && x === x)
-  // );
-  // console.log("diff :", (-Math.log2(prob_min_whole)).toFixed(3));
+  n = d[sx][sy][tx][ty];
 }
 
 let w = [];
