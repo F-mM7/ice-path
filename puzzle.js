@@ -18,18 +18,23 @@ for (let i = 0; i < H; ++i) rock[i] = new Array(W);
 let cx, cy, r;
 
 function setQuestion() {
-  putRocks(8 + Math.random() * 8);
+  const N = Math.floor(12 + Math.random() * 12);
+  putRocks(N);
   setStartGoal();
+  console.log(-Math.log2(p[sx][sy][tx][ty]));
 }
 
 function putRocks(N) {
   for (let i = 0; i < H; ++i) rock[i].fill(false);
 
-  for (let _ = 0; _ < N; ++_) {
+  for (let i = 0; i < N; ) {
     const id = Math.floor(Math.random() * H * W);
     const x = (id - (id % W)) / W;
     const y = id % W;
-    rock[x][y] = true;
+    if (!rock[x][y]) {
+      ++i;
+      rock[x][y] = true;
+    }
   }
 }
 
@@ -39,6 +44,17 @@ for (let x = 0; x < H; ++x) {
   for (let y = 0; y < W; ++y) {
     d[x][y] = [];
     for (let nx = 0; nx < H; ++nx) d[x][y][nx] = new Array(W);
+  }
+}
+let w = [];
+for (let x = 0; x < H; ++x) w[x] = new Array(W);
+let p = [];
+for (let x = 0; x < H; ++x) {
+  p[x] = [];
+  w[x] = new Array(W);
+  for (let y = 0; y < W; ++y) {
+    p[x][y] = [];
+    for (let nx = 0; nx < H; ++nx) p[x][y][nx] = new Array(W);
   }
 }
 
@@ -53,10 +69,8 @@ function setStartGoal() {
       .flat()
       .filter((x) => x != 0 && x === x)
   );
-  console.log("diff :", (-Math.log2(p_min)).toFixed(3));
 
   let v = [];
-
   for (let x = 0; x < H; ++x)
     for (let y = 0; y < W; ++y)
       for (let nx = 0; nx < H; ++nx)
@@ -64,23 +78,11 @@ function setStartGoal() {
           if (p[x][y][nx][ny] == p_min) v.push([x, y, nx, ny]);
 
   const k = Math.floor(Math.random() * v.length);
-
   sx = v[k][0];
   sy = v[k][1];
   tx = v[k][2];
   ty = v[k][3];
   n = d[sx][sy][tx][ty];
-}
-
-let w = [];
-let p = [];
-for (let x = 0; x < H; ++x) {
-  p[x] = [];
-  w[x] = new Array(W);
-  for (let y = 0; y < W; ++y) {
-    p[x][y] = [];
-    for (let nx = 0; nx < H; ++nx) p[x][y][nx] = new Array(W);
-  }
 }
 
 function Dijkstra() {
