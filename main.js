@@ -10,19 +10,20 @@ for (let k = 0; k < 4; ++k) key_dom[k].onclick = move.bind(0, k);
 
 //keyboard
 document.addEventListener("keydown", keydownEvent);
-const KEY = ["KeyS", "KeyD", "KeyW", "KeyA"];
-const ARROW = ["ArrowDown", "ArrowRight", "ArrowUp", "ArrowLeft"];
 function keydownEvent(e) {
-  if (e.ctrlKey) return;
-  if (e.code == "KeyR") pushReset();
-
-  let k = -1;
-  if (e.code.substring(0, 3) == "Key") k = KEY.indexOf(e.code);
-  else if (e.code.substring(0, 5) == "Arrow") k = ARROW.indexOf(e.code);
-
-  if (k == -1) return;
-  move(k);
+  if (!e.ctrlKey && keyBind[e.code]) keyBind[e.code]();
 }
+const keyBind = {
+  KeyW: move.bind(0, 2),
+  KeyA: move.bind(0, 3),
+  KeyS: move.bind(0, 0),
+  KeyD: move.bind(0, 1),
+  ArrowUp: move.bind(0, 2),
+  ArrowLeft: move.bind(0, 3),
+  ArrowDown: move.bind(0, 0),
+  ArrowRight: move.bind(0, 1),
+  KeyR: pushReset,
+};
 
 function set() {
   setQuestion();
