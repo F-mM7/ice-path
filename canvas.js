@@ -1,10 +1,6 @@
 //setting
-//  size
-const H = 12;
-const W = 12;
 const L = 40;
 const T = 6;
-//  color
 const piece_color = "lime";
 const goal_color = "red";
 const rock_color = "black";

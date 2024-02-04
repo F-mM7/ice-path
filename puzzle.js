@@ -1,3 +1,7 @@
+//setting
+const H = 12;
+const W = 12;
+
 //grid
 const dx = [1, 0, -1, 0];
 const dy = [0, 1, 0, -1];
@@ -9,12 +13,18 @@ function reachable(x, y) {
 //  q
 let sx, sy, tx, ty, n;
 let rock = [];
-for (let i = 0; i < H; ++i) rock[i] = [];
+for (let i = 0; i < H; ++i) rock[i] = new Array(W);
 //  current
 let cx, cy, r;
 
-function putRocks() {
-  const N = 8 + Math.random() * 8;
+function setQuestion() {
+  putRocks(8 + Math.random() * 8);
+  setStartGoal();
+}
+
+function putRocks(N) {
+  for (let i = 0; i < H; ++i) rock[i].fill(false);
+
   for (let _ = 0; _ < N; ++_) {
     const id = Math.floor(Math.random() * H * W);
     const x = (id - (id % W)) / W;
@@ -23,40 +33,17 @@ function putRocks() {
   }
 }
 
-function setStartGoal() {
-  //Dijkstra
-  let d = [];
-  for (let x = 0; x < H; ++x) {
-    d[x] = [];
-    for (let y = 0; y < W; ++y) {
-      d[x][y] = [];
-      for (let nx = 0; nx < H; ++nx) d[x][y][nx] = new Array(W).fill(Infinity);
-      if (reachable(x, y)) d[x][y][x][y] = 0;
-    }
+let d = [];
+for (let x = 0; x < H; ++x) {
+  d[x] = [];
+  for (let y = 0; y < W; ++y) {
+    d[x][y] = [];
+    for (let nx = 0; nx < H; ++nx) d[x][y][nx] = new Array(W);
   }
-  for (let x = 0; x < H; ++x)
-    for (let y = 0; y < W; ++y) {
-      if (!reachable(x, y)) continue;
-      for (let k = 0; k < 4; ++k) {
-        let nx = x;
-        let ny = y;
-        while (reachable(nx + dx[k], ny + dy[k])) {
-          nx += dx[k];
-          ny += dy[k];
-        }
-        if (nx == x && ny == y) continue;
-        d[x][y][nx][ny] = 1;
-      }
-    }
+}
 
-  for (let mx = 0; mx < H; ++mx)
-    for (let my = 0; my < W; ++my)
-      for (let x = 0; x < H; ++x)
-        for (let y = 0; y < W; ++y)
-          for (let nx = 0; nx < H; ++nx)
-            for (let ny = 0; ny < W; ++ny)
-              if (d[x][y][mx][my] + d[mx][my][nx][ny] < d[x][y][nx][ny])
-                d[x][y][nx][ny] = d[x][y][mx][my] + d[mx][my][nx][ny];
+function setStartGoal() {
+  Dijkstra();
 
   //最長経路
   let m = 1;
@@ -79,6 +66,40 @@ function setStartGoal() {
   sy = v[k][1];
   tx = v[k][2];
   ty = v[k][3];
-  console.log(d[sx][sy]);
   n = m;
+
+  console.log(d[sx][sy]);
+}
+function Dijkstra() {
+  //initialize
+  for (let x = 0; x < H; ++x)
+    for (let y = 0; y < W; ++y)
+      for (let nx = 0; nx < H; ++nx) d[x][y][nx].fill(Infinity);
+
+  //edge
+  for (let x = 0; x < H; ++x)
+    for (let y = 0; y < W; ++y) {
+      if (!reachable(x, y)) continue;
+      d[x][y][x][y] = 0;
+      for (let k = 0; k < 4; ++k) {
+        if (!reachable(x + dx[k], y + dy[k])) continue;
+        let nx = x + dx[k];
+        let ny = y + dy[k];
+        while (reachable(nx + dx[k], ny + dy[k])) {
+          nx += dx[k];
+          ny += dy[k];
+        }
+        d[x][y][nx][ny] = 1;
+      }
+    }
+
+  //main
+  for (let mx = 0; mx < H; ++mx)
+    for (let my = 0; my < W; ++my)
+      for (let x = 0; x < H; ++x)
+        for (let y = 0; y < W; ++y)
+          for (let nx = 0; nx < H; ++nx)
+            for (let ny = 0; ny < W; ++ny)
+              if (d[x][y][mx][my] + d[mx][my][nx][ny] < d[x][y][nx][ny])
+                d[x][y][nx][ny] = d[x][y][mx][my] + d[mx][my][nx][ny];
 }

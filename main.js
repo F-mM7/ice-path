@@ -1,6 +1,6 @@
 console.log("ver 0.6");
 const delay = 20;
-const tq = new TaskQueue(delay);
+const tq = new TaskQueue(0, delay);
 let freeze;
 
 window.onload = set;
@@ -27,9 +27,7 @@ function keydownEvent(e) {
 }
 
 function set() {
-  for (let i = 0; i < H; ++i) rock[i].fill(false);
-  putRocks();
-  setStartGoal();
+  setQuestion();
   reset();
 }
 function reset() {
@@ -41,11 +39,11 @@ function reset() {
   display.innerHTML = r;
 
   freeze = false;
-  tq.before = delay;
+  tq.after = delay;
 }
 function pushReset() {
   freeze = true;
-  tq.before = 0;
+  tq.after = 0;
   tq.push(reset);
 }
 function move(k) {
