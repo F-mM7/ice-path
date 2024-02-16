@@ -2,6 +2,10 @@
 
 こおりのぬけみち-like な迷路の訓練用 WEB アプリケーション.
 
+# リンク
+
+[https://f-mm7.github.io/ice-path](https://f-mm7.github.io/ice-path/)
+
 # ルール
 
 マスの色と意味は以下の通り
@@ -20,7 +24,3 @@
 目的地に静止することができればクリアです.
 
 ↺ はリセットボタンです.
-
-# リンク
-
-[https://f-mm7.github.io/ice-path](https://f-mm7.github.io/ice-path/)
