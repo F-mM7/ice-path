@@ -61,7 +61,7 @@ button,
 }
 #controller {
   height: auto;
-  width: calc(var(--unit-grid) * (3 + var(--button-size) * 5));
+  width: calc(var(--unit-grid) * (var(--button-size) * 8));
 }
 /* } */
 @media (orientation: landscape) {
@@ -82,7 +82,7 @@ button,
     width: calc(var(--unit-grid) * (var(--N) + 2 + var(--button-size) * 3));
   }
   #controller {
-    height: calc(var(--unit-grid) * (3 + var(--button-size) * 5));
+    height: calc(var(--unit-grid) * (var(--button-size) * 8));
     width: auto;
   }
 }

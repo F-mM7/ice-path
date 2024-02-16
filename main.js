@@ -1,4 +1,4 @@
-console.log("ver 0.13");
+console.log("ver 0.14");
 const tq = new TaskQueue(0, 20);
 
 window.onload = set;
