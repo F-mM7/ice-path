@@ -1,4 +1,4 @@
-console.log("ver 0.11");
+console.log("ver 0.12");
 const tq = new TaskQueue(0, 20);
 
 window.onload = set;
@@ -26,7 +26,9 @@ const keyBind = {
 };
 
 function set() {
+  // for (let i = 0; i < 10000; ++i)
   setQuestion();
+  // console.log(list);
   reset();
 }
 function reset() {

@@ -17,10 +17,13 @@ for (let i = 0; i < H; ++i) rock[i] = new Array(W);
 //  current
 let cx, cy, r;
 
+// let list = "";
 function setQuestion() {
-  const N = Math.floor(12 + Math.random() * 12);
+  const N = Math.floor(12 + Math.random() * (32 - 12));
   putRocks(N);
   setStartGoal();
+  // list +=
+  // N.toString() + "\t" + (-Math.log2(p[sx][sy][tx][ty])).toString() + "\n";
   console.log(-Math.log2(p[sx][sy][tx][ty]));
 }
 
