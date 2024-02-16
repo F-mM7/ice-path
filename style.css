@@ -1,5 +1,6 @@
 :root {
   --N: 12;
+  --button-size: 1.5;
 }
 
 .container {
@@ -30,20 +31,23 @@ li {
 }
 
 button,
-#display {
+.tile {
   display: flex;
-  height: calc(var(--unit-grid) * 1.5);
-  width: calc(var(--unit-grid) * 1.5);
+  height: calc(var(--unit-grid) * var(--button-size));
+  width: calc(var(--unit-grid) * var(--button-size));
   padding: 0;
 
-  font-size: calc(var(--unit-grid) * 1.5 / 1.2);
+  font-size: calc(var(--unit-grid) * var(--button-size) / 1.2);
   align-items: center;
   justify-content: center;
 }
 
 /* @media (orientation: portrait) { */
 :root {
-  --unit-grid: min(calc(100vh / (var(--N) + 5)), calc(98vw / var(--N)));
+  --unit-grid: min(
+    calc(100vh / (var(--N) + 2 + var(--button-size) * 3)),
+    calc(98vw / var(--N))
+  );
 }
 .parallel {
   flex-direction: column;
@@ -52,17 +56,20 @@ button,
   flex-direction: row;
 }
 #board {
-  height: calc(var(--unit-grid) * (var(--N) + 5));
+  height: calc(var(--unit-grid) * (var(--N) + 2 + var(--button-size) * 3));
   width: auto;
 }
 #controller {
   height: auto;
-  width: calc(var(--unit-grid) * 10.5);
+  width: calc(var(--unit-grid) * (3 + var(--button-size) * 5));
 }
 /* } */
 @media (orientation: landscape) {
   :root {
-    --unit-grid: min(calc(100vw / (var(--N) + 6.5)), calc(98vh / var(--N)));
+    --unit-grid: min(
+      calc(100vw / (var(--N) + 2 + var(--button-size) * 3)),
+      calc(98vh / var(--N))
+    );
   }
   .parallel {
     flex-direction: row;
@@ -72,10 +79,10 @@ button,
   }
   #board {
     height: auto;
-    width: calc(var(--unit-grid) * (var(--N) + 6.5));
+    width: calc(var(--unit-grid) * (var(--N) + 2 + var(--button-size) * 3));
   }
   #controller {
-    height: calc(var(--unit-grid) * 9);
+    height: calc(var(--unit-grid) * (3 + var(--button-size) * 5));
     width: auto;
   }
 }
