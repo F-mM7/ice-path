@@ -3,6 +3,10 @@
   --button-size: 1.5;
 }
 
+* {
+  appearance: none;
+}
+
 .container {
   display: flex;
   justify-content: center;
